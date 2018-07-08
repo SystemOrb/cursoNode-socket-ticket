@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Programa de Colas</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="js/libs/jquery.min.js"></script>
+    <script src="socket.io/socket.io.js"></script>
+</head>
+
+<body class="container">
+    <h1>Escritorio <span id="number"></span> </h1>
+    <h4>Atendiendo a <small>....</small></h4>
+
+    <button data-bind="nextTicket" class="btn btn-primary">
+        Atender siguiente ticket
+    </button>
+
+    <script>
+        var socket = io();
+        socket.on('connect', function() {
+            console.log('Conectado al servidor');
+        });
+        $(document).ready(function() {
+            // Verificamos la URL
+            var URL = new URLSearchParams(window.location.search);
+            if (!URL.has('escritorio') || (!URL.get('escritorio'))) {
+                window.location.href = 'index.html';
+                throw new Error('Necesita el escritorio');
+            }
+            $('#number').text(URL.get('escritorio'));
+            $('button[data-bind=nextTicket]').click(function() {
+                socket.emit('nextTicket', null, function(ticket) {
+                    console.log(ticket);
+                    $('small').text(ticket.data.data.client + ' #Ticket: ' + ticket.data.ticket);
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
